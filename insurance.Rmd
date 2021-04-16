@@ -1,0 +1,84 @@
+---
+title: "insurance"
+author: "Luthfi Soni Kurnia"
+date: "4/16/2021"
+output: html_document
+---
+
+```{r}
+# Data Wrangling
+library(tidyverse)
+
+# Cek asumsi model
+library(lmtest)
+library(car)
+
+# Menghitung error
+library(MLmetrics)
+
+# Visualiasi Korelasi
+library(GGally)
+```
+
+
+# Multilinear Regretion
+```{r}
+insurance <- read.csv("data_input/insurance.csv")
+
+insurance
+```
+Data Description:
+
+- `age`: Age of primary beneficiary
+- `sex`: Insurance contractor gender, female, male
+- `bmi`: Body mass index, providing an understanding of body, objective index of body weight (kg/m^2)
+- `children`: Number of children covered by health insurance / Number of dependents
+- `smoker`: Does the beneficiary actively smoking?
+- `region`: The beneficiary's residential area in the US, northeast, southeast, southwest, northwest.
+- `charges`: Individual medical costs billed by health insurance
+
+## Data Preprocessing/Wrangling (Tidy and Transform)
+```{r}
+glimpse(insurance)
+```
+```{r}
+insurance <- insurance %>% 
+  mutate_if(is.character, as.factor) # ketika kolomnya character, diubah jadi factor
+
+summary(insurance)
+```
+# Melihat Korelasi
+```{r}
+library(GGally)
+
+# Mencari korelasi dari variabel numerik
+ggcorr(insurance, label = T)
+```
+
+# Modeling
+```{r}
+# menggunakan semua kolom selain charge sebagai prediktor
+model_insurance_all <- lm(charges ~ ., data = insurance)
+model_insurance_all
+# menggunakan sex, smoker, dan age sebagai prediktor
+model_insurance <- lm(charges ~ sex + smoker + age, data = insurance)
+
+summary(model_insurance)
+```
+
+
+Penentuan
+
+- p-value > 0.05: Tidak menolak $H_0$ atau semua variabel prediktor tidak berhubungan signifikan terhadap target (memiliki estimate sama dengan 0)
+- p-value < 0.05: Menolak $H_0$ atau paling sedikit terdapat satu variabel prediktor yang berhubungan signifikan terhadap target (memiliki estimate tidak sama dengan 0)
+
+### Evaluasi
+
+Memprediksi data baru, jika client adalah perempuan tidak merokok berusia 18 tahun.
+
+```{r}
+data_baru <- data.frame(sex = "female", smoker = "no", age = 18)
+
+# prediksi medical charge 
+predict(model_insurance, newdata = data_baru)
+```
