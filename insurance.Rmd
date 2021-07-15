@@ -1,6 +1,6 @@
 ---
 title: "insurance"
-author: "Luthfi Soni Kurnia"
+author: "Fahrian Aditya"
 date: "4/16/2021"
 output: html_document
 ---
